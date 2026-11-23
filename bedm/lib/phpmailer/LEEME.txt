@@ -1,0 +1,2 @@
+PHPMailer 6.9.3 (https://github.com/PHPMailer/PHPMailer) · licencia LGPL 2.1 (ver LICENSE).
+Se incluye sin modificaciones. Acceso web bloqueado: solo lo usa includes/mailer.php.

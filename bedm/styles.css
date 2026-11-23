@@ -1,0 +1,648 @@
+:root {
+    --blue-top: #004E9F;
+    --blue-bottom: #002D69;
+    --blue-nav: #004E9F;
+    --blue-active: #004384;
+    --bg-white: #FFFFFF;
+    --card-border: #E2E8F0;
+    --text-main: #333333;
+    --text-muted: #6C757D;
+    --bg-input: #F8FAFC;   /* ya se usaba, pero solo estaba definida en style-login.css */
+    --error-red: #DC3545;  /* ídem */
+    --gutter: 16px;
+    --nav-h: 64px;   /* alto de la barra inferior: 48px del ícono + 8px + 8px de padding */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto Mono', monospace; }
+body { background-color: var(--bg-white); color: var(--text-main); overflow-x: hidden; }
+.inner-page { padding-top: 0; } /* antes 20px: el main ya aporta 1 gutter arriba */
+
+/* ==========================================
+   HERO (INICIO)
+   ========================================== */
+.hero {
+    height: 100vh; width: 100%;
+    background: linear-gradient(to bottom, var(--blue-top), var(--blue-bottom));
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;
+    position: relative; overflow: hidden; /* contiene al sketch p5.js */
+}
+.hero h1 { font-size: 3.5rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 0.5rem; }
+.hero p { font-size: 1.1rem; font-weight: 400; opacity: 0.9; }
+
+/* ==========================================
+   LAYOUT Y GRILLAS
+   ========================================== */
+
+/* Padding inferior = alto de la barra + 2 gutters: el contenido nunca queda tapado por la barra */
+.main-content { padding: var(--gutter); padding-bottom: calc(var(--nav-h) + var(--gutter) * 2); max-width: 600px; margin: 0 auto; }
+.grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter); }
+
+/* ==========================================
+   TARJETAS DE COMUNIDAD (Inicio)
+   ========================================== */
+.community-card {
+    grid-column: span 2; background-color: var(--blue-top); border-radius: 16px; position: relative;
+    display: flex; flex-direction: column; overflow: hidden; transition: 0.2s; border: 1px solid var(--blue-bottom);
+}
+.community-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.card-preview { height: 110px; width: 100%; background-color: var(--blue-nav); background-size: cover; background-position: center; border-bottom: 2px solid var(--bg-white); }
+.card-avatar {
+    position: absolute; top: 86px; left: 12px; width: 46px; height: 46px; background-color: var(--blue-top);
+    border: 2px solid var(--bg-white); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--bg-white); font-size: 1.2rem; z-index: 2;
+}
+.card-content { padding: 28px 12px 14px 12px; text-align: left; }
+.card-title { font-size: 0.8rem; font-weight: 700; color: var(--bg-white); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-author { font-size: 0.65rem; font-weight: 400; color: var(--bg-white); opacity: 0.85; }
+
+/* ==========================================
+   PERFIL Y FILTROS
+   ========================================== */
+.profile-header { background: white; border-radius: 16px; overflow: hidden; border: 1px solid var(--card-border); }
+.profile-banner { height: 120px; width: 100%; background: linear-gradient(135deg, var(--blue-top), var(--blue-bottom)); background-size: cover; background-position: center; position: relative;}
+.edit-btn { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.4); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); }
+
+/* Grilla interna de la tarjeta de perfil de 4 columnas */
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px var(--gutter); 
+    padding: 0 var(--gutter) var(--gutter) var(--gutter);
+}
+
+/* Avatar: Columna 1. Sube exactamente la mitad (40px) para centrarse en el borde del banner */
+.profile-avatar-col {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    margin-top: -40px;
+    position: relative;
+    z-index: 2;
+}
+.profile-pic-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid var(--bg-white);
+    object-fit: cover;
+    background: white;
+}
+
+/* Textos: Ocupa las columnas 2 a 4, al costado del avatar */
+.profile-text-col {
+    grid-column: 2 / 5;
+    grid-row: 1 / 2;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+}
+.profile-text-col h2 { font-size: 1.1rem; color: var(--text-main); font-weight: 700; margin-bottom: 2px; }
+.profile-text-col p { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Botones de Editar perfil y Cerrar sesión: mismo ancho (50% y 50%) */
+.logout-col {
+    grid-column: 1 / 5;
+    grid-row: 2 / 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gutter);
+    margin-top: 8px;
+}
+.logout-action-btn {
+    width: 100%;
+    background-color: var(--blue-nav);
+    color: var(--bg-white);
+    border: 1.5px solid var(--blue-nav);
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: 0.2s;
+}
+.logout-action-btn:hover { background-color: var(--blue-active); border-color: var(--blue-active); }
+
+.logout-action-btn.btn-edit-profile {
+    background-color: var(--bg-white);
+    color: var(--blue-top);
+    border: 1.5px solid var(--blue-top);
+}
+.logout-action-btn.btn-edit-profile:hover {
+    background-color: var(--bg-input);
+}
+
+/* Modal de edición de perfil */
+.modal-box.edit-profile-modal {
+    max-width: 420px;
+    text-align: left;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal-box.edit-profile-modal h3 {
+    color: var(--blue-top);
+    font-size: 1.05rem;
+    margin-bottom: 14px;
+}
+.edit-media-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+/* Botón Añadir Trabajo */
+.btn-add-job {
+    background-color: var(--blue-top);
+    color: var(--bg-white);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    display: block;
+    transition: 0.2s;
+}
+.btn-add-job:hover { background-color: var(--blue-bottom); }
+
+/* Caja de filtros general */
+.search-bar-rounded { background-color: var(--blue-nav); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; }
+.filters-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter); }
+.filters-grid .custom-select-wrapper { grid-column: span 2; }
+.filters-grid .full-width { grid-column: span 4; }
+.custom-select-wrapper { position: relative; width: 100%; }
+.custom-select { width: 100%; background: transparent; border: 1.5px solid var(--bg-white); border-radius: 8px; padding: 10px 30px 10px 12px; color: var(--bg-white); font-size: 0.85rem; outline: none; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.custom-select option { background-color: var(--bg-white); color: var(--text-main); }
+.custom-select-wrapper::after { content: "\f078"; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--bg-white); pointer-events: none; font-size: 0.8rem; }
+
+/* Variante Menúes Blancos con Letras Azules */
+.select-white-blue .custom-select {
+    background-color: var(--bg-white);
+    color: var(--blue-top);
+    border-color: var(--bg-white);
+}
+.select-white-blue::after {
+    color: var(--blue-top) !important;
+}
+.select-white-blue .custom-select option {
+    background-color: var(--blue-top);
+    color: var(--bg-white);
+}
+.select-white-blue .custom-select option:hover,
+.select-white-blue .custom-select option:focus {
+    background-color: #002D69;
+}
+
+/* ==========================================
+   BARRA DE BÚSQUEDA Y FILTRO COMPLETO
+   ========================================== */
+.search-input-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+    width: 100%;
+}
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--bg-white); /* Ícono blanco */
+    font-size: 0.95rem;
+}
+.search-input {
+    width: 100%;
+    background-color: var(--blue-bottom); /* Fondo #002d69 */
+    color: var(--bg-white); /* Texto blanco */
+    border: none;
+    border-radius: 12px;
+    padding: 14px 14px 14px 40px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: 0.2s ease;
+}
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Tarjetas de Materias */
+.subject-card { grid-column: span 4; background: var(--bg-white); border: 1px solid var(--card-border); border-radius: 12px; display: flex; align-items: center; padding: 12px; cursor: pointer; transition: 0.2s; }
+@media (min-width: 400px) { .subject-card { grid-column: span 2; } }
+.subject-icon-box { width: 48px; height: 48px; background: var(--blue-nav); color: var(--bg-white); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; flex-shrink: 0; }
+.subject-icon-img { width: 26px; height: 26px; object-fit: contain; display: block; }
+.subject-info { margin-left: 12px; overflow: hidden; }
+.subject-info h4 { font-size: 0.9rem; color: var(--text-main); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.subject-info p { font-size: 0.75rem; color: var(--text-muted); }
+
+/* ==========================================
+   TRABAJOS Y UPLOADS
+   ========================================== */
+.back-btn { background: none; border: none; color: var(--blue-top); font-weight: 700; font-size: 0.9rem; cursor: pointer; margin-bottom: var(--gutter); display: flex; align-items: center; gap: 5px; }
+.assignment-header { padding: 16px; border-bottom: 1px solid var(--card-border); }
+.assignment-header h4 { font-size: 1rem; color: var(--blue-top); margin-bottom: 6px; }
+.upload-zone { border: 2px dashed #CBD5E1; background: #F8FAFC; border-radius: 8px; margin: 16px; padding: 20px 10px; text-align: center; color: var(--text-muted); position: relative; transition: 0.2s; }
+.upload-zone:hover { border-color: var(--blue-top); color: var(--blue-top); }
+.upload-zone i { font-size: 28px; margin-bottom: 8px; color: #94A3B8; }
+.upload-zone p { font-size: 0.85rem; font-weight: 700; }
+.file-upload-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.card-footer-status { padding: 12px; font-size: 0.85rem; font-weight: 700; text-align: center; border-top: 1px solid var(--card-border); }
+.pending { background: #FFFBEB; color: #B45309; }
+
+/* ==========================================
+   MODAL DE LOGOUT
+   ========================================== */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 2000;
+}
+.modal-box {
+    background: var(--bg-white); padding: 24px; border-radius: 16px; width: 90%; max-width: 350px;
+    text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.modal-box p { color: var(--blue-top); font-weight: 700; margin-bottom: 24px; font-size: 1rem; }
+.modal-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gutter); }
+.modal-btn { grid-column: span 2; text-align: center; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; text-decoration: none; border: none; font-size: 0.9rem; display: block; }
+.modal-btn.cancel { background: var(--bg-input); color: var(--text-muted); border: 1px solid var(--card-border); }
+.modal-btn.confirm { background: var(--blue-top); color: var(--bg-white); }
+
+/* ==========================================
+   NAVEGACIÓN INFERIOR
+   ========================================== */
+.bottom-nav {
+    position: fixed; bottom: var(--gutter); left: 50%; transform: translateX(-50%);
+    width: calc(100% - (var(--gutter) * 2)); max-width: calc(600px - (var(--gutter) * 2));
+    background-color: var(--blue-nav); border-radius: 16px; display: flex; justify-content: space-around;
+    align-items: center; padding: 8px 16px; z-index: 100; transition: opacity 0.4s ease, transform 0.4s ease; opacity: 1;
+}
+.bottom-nav.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, 20px); }
+.nav-item { background: transparent; border: none; color: white; font-size: 1.3rem; cursor: pointer; display: flex; justify-content: center; align-items: center; width: 48px; height: 48px; border-radius: 50%; transition: 0.3s; text-decoration: none; }
+.nav-item.active { background-color: var(--blue-active); }
+
+/* ==========================================
+   PÁGINA CREAR / POST (crear.php)
+   ========================================== */
+
+/* 1. Tarjeta del Usuario */
+.create-user-card {
+    background: var(--bg-white);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+}
+.create-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--card-border);
+    object-fit: cover;
+}
+.create-user-info {
+    margin-left: 12px;
+}
+.create-user-info h2 {
+    font-size: 1.1rem;
+    color: var(--blue-top);
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+.create-user-info p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+.create-likes-counter {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+.create-likes-counter i {
+    font-size: 1.2rem;
+    color: var(--blue-nav);
+    margin-bottom: 4px;
+}
+
+/* 2. Caja de Descripción */
+.create-description-box {
+    background: var(--bg-input);
+    border: 1.5px solid var(--card-border);
+    border-radius: 12px;
+    padding: 12px;
+    transition: 0.2s;
+}
+.create-description-box:focus-within {
+    border-color: var(--blue-top);
+    background: var(--bg-white);
+}
+.create-description-box textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* 3. Envoltorio Principal Azul (PDF + Evaluaciones) */
+.post-evaluation-box {
+    background-color: var(--blue-top);
+    border-radius: 16px;
+    padding: 16px;
+}
+
+/* Visualizador de PDF (Margen ínfimo) */
+.create-pdf-viewer {
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Margen minúsculo de seguridad */
+    background: transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+/* Se oculta si no tiene imágenes cargadas por JS */
+.create-pdf-viewer:empty {
+    display: none; 
+}
+/* Aviso para quien todavía no confirmó su correo */
+.aviso-verificacion {
+    background: #FFF8E1; color: #7A5200; border-bottom: 1px solid #F3DDA0;
+    padding: 10px var(--gutter); font-size: 0.78rem; line-height: 1.35; text-align: center;
+}
+.aviso-btn {
+    background: var(--blue-top); color: var(--bg-white); border: none; border-radius: 6px;
+    padding: 5px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-left: 6px;
+}
+.aviso-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* Mensaje de estado bajo el campo del link */
+.preview-info { color: white; font-size: 0.8rem; margin: 0; padding: 0 4px; opacity: 0.9; }
+.preview-info.error { color: #FFD1D1; font-weight: 700; opacity: 1; }
+.create-pdf-viewer img {
+    width: 100%;
+    display: block;
+    pointer-events: none;      /* Impide arrastrar la imagen o abrir menú contextual directo */
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+/* Cajas de Evaluación (Nota y Pulgares) */
+.create-grade-box {
+    background: var(--blue-bottom);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 0;
+}
+/* Estructura para el pan de texto simétrico en tipografía monospace */
+.grade-text-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.grade-value-row {
+    display: flex;
+    color: var(--bg-white);
+    line-height: 1;
+}
+.grade-input {
+    width: 2ch; /* Exactamente 2 caracteres de ancho */
+    border: none;
+    background: transparent;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 2rem;
+    color: var(--bg-white);
+    padding: 0;
+    text-align: right;
+    outline: none;
+}
+.grade-input:focus {
+    text-decoration: underline;
+}
+.grade-total {
+    font-size: 2rem;
+    font-family: 'Roboto Mono', monospace;
+}
+.grade-label {
+    font-size: 1rem;
+    color: var(--bg-white);
+    margin-top: 4px;
+    line-height: 1;
+}
+
+/* Botones de Pulgares */
+.create-action-btn {
+    background: var(--blue-bottom);
+    border: none;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    color: var(--bg-white);
+    cursor: pointer;
+    transition: 0.2s;
+    padding: 16px 0;
+}
+.create-action-btn:hover {
+    background: var(--bg-white);
+    color: var(--blue-bottom);
+}
+
+/* 4. Sección de Comentarios */
+.create-comments-section {
+    background-color: var(--blue-nav);
+    border-radius: 16px;
+    padding: 16px;
+}
+.comments-title {
+    color: var(--bg-white);
+    font-size: 1rem;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+.comment-input-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+.comment-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-white);
+    background: var(--bg-white);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.comment-bubble {
+    flex: 1;
+    background: var(--blue-bottom); /* Globo azul oscuro */
+    border-radius: 16px;
+    border-top-left-radius: 0;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.comment-bubble textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.85rem;
+    color: var(--bg-white); /* Tipografía blanca */
+    resize: vertical;
+    min-height: 40px;
+}
+.comment-bubble textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+.send-comment-btn {
+    align-self: flex-end;
+    background: var(--bg-white);
+    color: var(--blue-bottom);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.send-comment-btn:hover {
+    background: #E2E8F0;
+}
+
+/* ==========================================
+   UTILIDADES DE GRILLA Y COMPONENTES NUEVOS
+   ========================================== */
+
+/* Utilidades de grilla (reemplazan los style="grid-column: ..." inline) */
+.col-1 { grid-column: span 1; }
+.col-2 { grid-column: span 2; }
+.col-4 { grid-column: span 4; }
+.grid-flush { padding: 0; }
+.no-mb { margin-bottom: 0; }
+.card-white { background-color: var(--bg-white); }
+
+/* Textos de apoyo (antes inline o sin estilo) */
+.empty-state { grid-column: span 4; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+.filter-title { color: var(--bg-white); font-size: 0.9rem; margin-bottom: var(--gutter); }
+.section-title h3 { font-size: 1rem; color: var(--blue-top); margin-bottom: var(--gutter); }
+
+/* Resultados de usuarios en buscar.php (reutiliza .subject-card) */
+a.subject-card { text-decoration: none; color: inherit; }
+.user-result .subject-icon-box { border-radius: 50%; }
+
+/* Nickname en el perfil */
+.profile-text-col h2 { overflow-wrap: anywhere; }
+.profile-text-col .profile-nick { color: var(--blue-top); font-weight: 700; margin-bottom: 2px; }
+.nick-edit-btn { background: none; border: none; color: var(--blue-top); cursor: pointer; font-size: 0.75rem; margin-left: 8px; }
+
+/* Error de campo dentro de modales */
+.field-error { display: none; color: var(--error-red); font-size: 0.75rem; font-weight: 700; margin-bottom: var(--gutter); }
+.field-error.show { display: block; }
+
+/* Sketch p5.js dentro del hero (detrás del texto) */
+/* El escenario mide lo mismo que el lienzo del sketch (1080x1920), se centra y se escala desde script.js.
+   Como es más chico que el iframe, recorta el cartel de arriba y las barras de desplazamiento. */
+.hero-p5-stage {
+    position: absolute; left: 50%; top: 50%;
+    overflow: hidden; z-index: 0; pointer-events: none;
+    transform: translate(-50%, -50%) scale(var(--p5-escala, 1));
+    transform-origin: center center;
+}
+.hero-p5 { position: absolute; left: 0; display: block; border: 0; overflow: hidden; }
+.hero-content { position: relative; z-index: 1; }
+
+/* Cartel de sección: mismo estilo que .btn-add-job (mismos colores, radio y padding) */
+.section-banner { background-color: var(--blue-top); color: var(--bg-white); border-radius: 16px; padding: 16px; text-align: center; font-weight: 700; }
+
+/* ══════════════════════════════════════════════════════════════
+   PUBLICAR / DETALLE DE UN TRABAJO
+   ══════════════════════════════════════════════════════════════ */
+.form-titulo { font-size: 1.15rem; color: var(--blue-top); margin-bottom: 4px; }
+.form-ayuda { font-size: 0.75rem; color: var(--text-muted); line-height: 1.45; margin: 4px 0 var(--gutter); }
+.form-card { background: var(--bg-white); border: 1px solid var(--card-border); border-radius: 16px; padding: var(--gutter); margin-bottom: var(--gutter); }
+.form-label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--blue-top); margin: 12px 0 6px; }
+.form-label:first-child { margin-top: 0; }
+.form-input {
+    width: 100%; background: var(--bg-input); border: 1.5px solid var(--card-border); border-radius: 10px;
+    padding: 10px 12px; font-size: 0.85rem; color: var(--text-main); outline: none;
+}
+.form-input:focus { border-color: var(--blue-top); }
+textarea.form-input { resize: vertical; }
+.form-error { display: none; color: var(--error-red); font-size: 0.8rem; font-weight: 700; margin: 0 0 12px; }
+.form-error.show { display: block; }
+.nombre-canonico { font-size: 0.72rem; color: var(--text-muted); margin: 6px 0 0; word-break: break-word; }
+button.btn-publicar { width: 100%; border: none; cursor: pointer; font-size: 1rem; }
+button.btn-publicar:disabled { opacity: 0.55; cursor: not-allowed; }
+.chk { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-main); cursor: pointer; }
+.chk-declaracion { align-items: flex-start; margin: 0 0 var(--gutter); line-height: 1.4; }
+.chk-declaracion input { margin-top: 3px; flex-shrink: 0; }
+.nota-fila { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.nota-input { width: 80px; text-align: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.chip { background: #E7F0FA; color: var(--blue-top); border-radius: 999px; padding: 4px 10px; font-size: 0.75rem; font-weight: 700; }
+.chip button { background: none; border: none; color: var(--blue-top); font-size: 1rem; cursor: pointer; margin-left: 4px; }
+.co-resultados { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.co-item { text-align: left; background: var(--bg-white); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px 10px; font-size: 0.8rem; cursor: pointer; color: var(--text-main); }
+.co-item:hover { background: var(--bg-input); }
+.co-externo { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+.nick { color: var(--text-muted); font-weight: 400; font-size: 0.72rem; }
+
+.aviso-btn-sec { background: var(--bg-white); color: var(--blue-top); border: 1.5px solid var(--blue-top); }
+.aviso-btn-peligro { background: var(--error-red); color: var(--bg-white); }
+.aviso-oculto, .aviso-invitacion { border-radius: 12px; padding: 12px 14px; font-size: 0.8rem; line-height: 1.45; margin-bottom: var(--gutter); }
+.aviso-oculto { background: #F1F3F5; color: var(--text-muted); }
+.aviso-invitacion { background: #FFF8E1; color: #7A5200; border: 1px solid #F3DDA0; }
+.aviso-invitacion p { margin: 0 0 8px; }
+.aviso-botones { display: flex; gap: 8px; }
+
+.trabajo-nombre { font-size: 1rem; line-height: 1.4; color: var(--blue-top); margin-bottom: 8px; word-break: break-word; }
+.trabajo-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--gutter); }
+.badge { background: var(--blue-top); color: var(--bg-white); border-radius: 999px; padding: 3px 10px; font-size: 0.7rem; font-weight: 700; }
+.badge-claro { background: #E7F0FA; color: var(--blue-top); }
+.autores { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
+.autores a { color: var(--blue-top); font-weight: 700; text-decoration: none; }
+.autores-admin li { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.trabajo-descripcion { font-size: 0.85rem; line-height: 1.55; color: var(--text-main); word-break: break-word; }
+.trabajo-dato { font-size: 0.8rem; color: var(--text-main); margin: var(--gutter) 0; line-height: 1.5; }
+.trabajo-huella { word-break: break-all; }
+.sep { border: none; border-top: 1px solid var(--card-border); margin: var(--gutter) 0; }
+.acciones-peligro { display: flex; gap: 8px; flex-wrap: wrap; }
+.community-card[data-id] { cursor: pointer; }
+.community-card .nick { color: inherit; opacity: 0.8; }
+
+/* ══════════════ «Me gusta», comentarios y avatar de iniciales ══════════════ */
+.acciones-trabajo { margin: var(--gutter) 0; }
+.like-btn {
+    display: inline-flex; align-items: center; gap: 8px; background: var(--bg-white); color: var(--blue-top);
+    border: 1.5px solid var(--blue-top); border-radius: 999px; padding: 8px 16px; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+.like-btn.activo { background: var(--blue-top); color: var(--bg-white); }
+.like-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.like-corazon { font-size: 1.1rem; line-height: 1; }
+.comentarios { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: var(--gutter); }
+.comentario { border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+.comentario:last-child { border-bottom: none; }
+.comentario-cab { font-size: 0.78rem; margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.comentario-cab a { color: var(--blue-top); font-weight: 700; text-decoration: none; }
+.comentario-texto { font-size: 0.85rem; line-height: 1.5; color: var(--text-main); word-break: break-word; }
+.comentario-borrar { background: none; border: none; color: var(--error-red); font-size: 0.72rem; cursor: pointer; margin-left: auto; }
+.avatar-iniciales { display: flex; align-items: center; justify-content: center; background: var(--blue-top); color: var(--bg-white); font-weight: 700; font-size: 1.6rem; }
+
+/* ══════════════ Mi cuenta, foto y portada ══════════════ */
+.mi-cuenta summary { cursor: pointer; font-weight: 700; color: var(--blue-top); font-size: 0.95rem; }
+.mi-cuenta[open] summary { margin-bottom: 8px; }
+.form-ok { display: none; color: #166534; font-size: 0.8rem; font-weight: 700; margin: 0 0 12px; }
+.form-ok.show { display: block; }
+.avatar-edit { top: auto; bottom: -4px; right: -4px; width: 28px; height: 28px; }
+.profile-bio { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; word-break: break-word; }
+.lista-baja { margin: 6px 0 12px 18px; display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
+.profile-banner { background-size: cover; background-position: center; }
